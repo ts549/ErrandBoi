@@ -6,26 +6,33 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:async';
 
+import 'map.dart';
+import 'errand_form.dart';
+
 void main() {
+  // runApp(MyApp());
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'ErrandBoi',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primaryColor: Colors.white,
-        ),
-        home: MapScreen(),
-      ),
-    );
+    return MaterialApp(home: Map());
+  }
+}
+
+class RouteGenerator {
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+
+    switch (settings.name) {
+      case '/map':
+        return MaterialPageRoute(builder: (_) => Map());
+      case '/request_errand':
+        return MaterialPageRoute(builder: (_) => RequestErrand());
+    }
+
+    return MaterialPageRoute(builder: (_) => Placeholder());
+    
   }
 }
 
