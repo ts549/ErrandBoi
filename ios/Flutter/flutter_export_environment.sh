@@ -3,7 +3,7 @@
 export "FLUTTER_ROOT=/Users/girvinnfernandez/development/flutter"
 export "FLUTTER_APPLICATION_PATH=/Users/girvinnfernandez/Desktop/ErrandBoi"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
-export "FLUTTER_TARGET=/Users/girvinnfernandez/Desktop/ErrandBoi/lib/main.dart"
+export "FLUTTER_TARGET=/Users/girvinnfernandez/Desktop/ErrandBoi/lib/errand_form.dart"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=0.0.1"
 export "FLUTTER_BUILD_NUMBER=1"
