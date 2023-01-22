@@ -2,7 +2,7 @@
 FLUTTER_ROOT=/Users/girvinnfernandez/development/flutter
 FLUTTER_APPLICATION_PATH=/Users/girvinnfernandez/Desktop/ErrandBoi
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/girvinnfernandez/Desktop/ErrandBoi/lib/main.dart
+FLUTTER_TARGET=/Users/girvinnfernandez/Desktop/ErrandBoi/lib/errand_form.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=0.0.1
 FLUTTER_BUILD_NUMBER=1
