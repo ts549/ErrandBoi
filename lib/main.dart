@@ -5,8 +5,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'dart:async';
+import 'dart:math';
+import 'dart:typed_data';
 
-import 'map.dart';
+import 'errand_map.dart';
 import 'errand_form.dart';
 
 void main() {
@@ -17,7 +19,7 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: Map());
+    return MaterialApp(home: ErrandMap());
   }
 }
 
@@ -26,7 +28,7 @@ class RouteGenerator {
 
     switch (settings.name) {
       case '/map':
-        return MaterialPageRoute(builder: (_) => Map());
+        return MaterialPageRoute(builder: (_) => ErrandMap());
       case '/errand_form':
         return MaterialPageRoute(builder: (_) => ErrandForm());
     }
@@ -76,6 +78,8 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   String? _currentAddress;
   Position? _currentPosition;
+  static const LatLng center = LatLng(-33.86711, 151.1947171);
+  Map<MarkerId, Marker> markers = <MarkerId, Marker>{}; //list of markers
 
   static const _initialCameraPosition = CameraPosition(
     target: LatLng(37.773972, -122.431297),
@@ -84,6 +88,9 @@ class _MapScreenState extends State<MapScreen> {
 
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
+  MarkerId? selectedMarker;
+  int _markerIdCounter = 1;
+  LatLng? markerPosition;
 
   @override
   Widget build(BuildContext build) {

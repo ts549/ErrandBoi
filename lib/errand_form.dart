@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'main.dart';
-import 'map.dart';
+import 'errand_map.dart';
 
 class ErrandForm extends StatelessWidget {
   // const MyApp({Key? key}) : super(key: key);
