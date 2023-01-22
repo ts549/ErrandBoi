@@ -1,0 +1,3 @@
+[submodule "backend/ErrandBoiBackend"]
+	path = backend/ErrandBoiBackend
+	url = https://github.com/adamf59/ErrandBoiBackend
