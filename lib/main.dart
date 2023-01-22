@@ -15,6 +15,34 @@ void main() {
   runApp(MyApp());
 }
 
+class Errand {
+  Errand(
+      {required this.title,
+      required this.description,
+      required this.requestor,
+      required this.locLat,
+      required this.locLng,
+      required this.duration,
+      required this.reward});
+  Errand.fromForm();
+  String? title = "";
+  String? description = "";
+  String? requestor = "";
+  double? locLat = 0.0;
+  double? locLng = 0.0;
+  int? duration = 0;
+  int? reward = 0;
+
+  factory Errand.fromJson(Map<String, dynamic> json) => Errand(
+      title: json["title"],
+      description: json["descr"],
+      requestor: json["requestor"],
+      locLat: json["locLat"],
+      locLng: json["locLng"],
+      duration: json["duration"],
+      reward: json["reward"]);
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -74,16 +102,8 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   String? _currentAddress;
   Position? _currentPosition;
-  late Future<Album> futureAlbum;
   static const LatLng center = LatLng(-33.86711, 151.1947171);
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{}; //list of markers
-
-  @override
-  void initState() {
-    super.initState();
-    futureAlbum = fetchAlbum();
-  }
-
   static const _initialCameraPosition = CameraPosition(
     target: LatLng(37.773972, -122.431297),
     zoom: 11.5,
