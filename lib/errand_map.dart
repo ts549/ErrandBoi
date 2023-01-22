@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'main.dart';
 import 'errand_form.dart';
+import 'errand_list.dart';
 
 class ErrandMap extends StatelessWidget {
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class ErrandMap extends StatelessWidget {
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: const <Widget>[
+          children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue,
@@ -32,6 +33,14 @@ class ErrandMap extends StatelessWidget {
             ListTile(
               leading: Icon(Icons.add_location),
               title: Text('Errands'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ErrandList(),
+                    ),
+                );
+              },
             ),
             ListTile(
               leading: Icon(Icons.account_circle),
