@@ -7,9 +7,8 @@ class ErrandProvider with ChangeNotifier {
   List<Errand> _items = [];
   final url = 'http://localhost:5000/errands/create';
 
-  List<Errand> get items {
-    return [..._items];
-  }
+  List<Errand> errandFromJson(String str) =>
+      List<Errand>.from(json.decode(str).map((x) => Errand.fromJson(x)));
 
   // Future<void> addErrand(String task) async {
   //     if(task.isEmpty){
@@ -25,8 +24,8 @@ class ErrandProvider with ChangeNotifier {
   //       itemName: responsePayload["name"]);
   // }
 
-  Future<Errand> addErrand(String? title, String? description, String requestor,
-      double locLat, double locLng, int duration, int? reward) async {
+  void addErrand(String? title, String? description, String requestor,
+      double locLat, double locLng, int duration, double? reward) async {
     var client = http.Client();
     var uri = Uri.parse("http://127.0.0.1:5000/errands/create");
     final http.Response response = await client.post(
@@ -46,8 +45,59 @@ class ErrandProvider with ChangeNotifier {
     );
     if (response.statusCode == 200) {
       var json = response.body;
-      return Errand.fromJson(jsonDecode(json));
+      //return Errand.fromJson(jsonDecode(json));
     } else {
+      throw Exception('Failed to add errand.');
+    }
+  }
+
+  Future<List<Errand>> getErrandByLocation(
+      double locLat, double locLng, int radius) async {
+    var client = http.Client();
+    final queryParameters = {
+      'locLat': locLat.toString(),
+      'locLng': locLng.toString(),
+      'radius': radius.toString(),
+    };
+    final uri =
+        Uri.http('127.0.0.1:5000', '/errands/get_by_location', queryParameters);
+    final http.Response response = await client.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    if (response.statusCode == 200) {
+      String jsonStr = response.body;
+      //print(jsonStr);
+      var json = jsonDecode(jsonStr);
+      Iterable i = jsonDecode(jsonStr)["results"];
+      List<Errand> errands =
+          List<Errand>.from(i.map((model) => Errand.fromJson(model)));
+      return errands;
+    } else {
+      print(response.statusCode);
+      throw Exception('Failed to add errand.');
+    }
+  }
+
+  void takeErrand(String username, String id) async {
+    var client = http.Client();
+    final queryParameters = {
+      'username': username,
+      'errandId': id,
+    };
+    final uri = Uri.http('127.0.0.1:5000', '/errands/accept', queryParameters);
+    final http.Response response = await client.post(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    if (response.statusCode == 200) {
+      print(response.body);
+    } else {
+      print(response.statusCode);
       throw Exception('Failed to add errand.');
     }
   }

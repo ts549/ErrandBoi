@@ -1,5 +1,6 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:namer_app/errand_form.dart';
 import 'package:provider/provider.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -10,37 +11,11 @@ import 'dart:typed_data';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'errand_form.dart';
+import 'errand_provider.dart';
 
 void main() {
   runApp(MyApp());
-}
-
-class Errand {
-  Errand(
-      {required this.title,
-      required this.description,
-      required this.requestor,
-      required this.locLat,
-      required this.locLng,
-      required this.duration,
-      required this.reward});
-  Errand.fromForm();
-  String? title = "";
-  String? description = "";
-  String? requestor = "";
-  double? locLat = 0.0;
-  double? locLng = 0.0;
-  int? duration = 0;
-  int? reward = 0;
-
-  factory Errand.fromJson(Map<String, dynamic> json) => Errand(
-      title: json["title"],
-      description: json["descr"],
-      requestor: json["requestor"],
-      locLat: json["locLat"],
-      locLng: json["locLng"],
-      duration: json["duration"],
-      reward: json["reward"]);
 }
 
 class MyApp extends StatelessWidget {
@@ -102,6 +77,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   String? _currentAddress;
   Position? _currentPosition;
+
   static const LatLng center = LatLng(-33.86711, 151.1947171);
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{}; //list of markers
   static const _initialCameraPosition = CameraPosition(
@@ -114,6 +90,30 @@ class _MapScreenState extends State<MapScreen> {
   MarkerId? selectedMarker;
   int _markerIdCounter = 1;
   LatLng? markerPosition;
+
+  void _printMarkers() async {
+    Position? _currentPosition = await Geolocator.getLastKnownPosition();
+
+    if (_currentPosition == null) {
+      return;
+    } else {
+      var result = await ErrandProvider()
+          .getErrandByLocation(
+              _currentPosition.latitude, _currentPosition.longitude, 5000)
+          .then(
+        (value) {
+          // value.map((errand) => {_add(LatLng(errand.locLat!, errand.locLng!))});
+          value.forEach((element) {
+            print(element.locLng);
+            if (element.locLng != null && element.locLng != null) {
+              print(element);
+              populate(element);
+            }
+          });
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext build) {
@@ -128,10 +128,56 @@ class _MapScreenState extends State<MapScreen> {
         markers: Set<Marker>.of(markers.values),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _getCurrentPosition,
+        onPressed: () {
+          _getCurrentPosition();
+          _printMarkers();
+        },
         child: Icon(Icons.center_focus_strong),
       ),
     );
+  }
+
+  void populate(Errand errand) {
+    final int markerCount = markers.length;
+    LatLng pos = LatLng(errand.locLat!, errand.locLng!);
+    if (markerCount == 12) {
+      return;
+    }
+
+    final String markerIdVal = errand.title!;
+    _markerIdCounter++;
+    final MarkerId markerId = MarkerId(errand.errandId!);
+
+    final Marker marker = Marker(
+      markerId: markerId,
+      position: pos,
+      infoWindow: InfoWindow(title: markerIdVal, snippet: '*'),
+      onTap: () => {
+        _onMarkerTapped(markerId),
+        showModalBottomSheet(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            context: context,
+            builder: (builder) {
+              return Container(
+                child: _buildBottonNavigationMethod(
+                    errand.description!,
+                    errand.reward!,
+                    errand.requestor!,
+                    errand.title!,
+                    errand.errandId!,
+                    markerId),
+              );
+            })
+      },
+      onDragEnd: (LatLng position) => _onMarkerDragEnd(markerId, position),
+      onDrag: (LatLng position) => _onMarkerDrag(markerId, position),
+    );
+
+    setState(() {
+      markers[markerId] = marker;
+    });
   }
 
   void _add(LatLng pos) {
@@ -140,7 +186,8 @@ class _MapScreenState extends State<MapScreen> {
     if (markerCount == 12) {
       return;
     }
-
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => Home(pos: pos)));
     final String markerIdVal = 'marker_id_$_markerIdCounter';
     _markerIdCounter++;
     final MarkerId markerId = MarkerId(markerIdVal);
@@ -158,8 +205,8 @@ class _MapScreenState extends State<MapScreen> {
             context: context,
             builder: (builder) {
               return Container(
-                child: _buildBottonNavigationMethod(),
-              );
+                  //child: _buildBottonNavigationMethod(),
+                  );
             })
       },
       onDragEnd: (LatLng position) => _onMarkerDragEnd(markerId, position),
@@ -171,7 +218,8 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  SizedBox _buildBottonNavigationMethod() {
+  SizedBox _buildBottonNavigationMethod(String desc, double reward,
+      String requestor, String title, String id, MarkerId markerId) {
     return SizedBox(
         height: 300,
         child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
@@ -180,7 +228,7 @@ class _MapScreenState extends State<MapScreen> {
             height: 40.0,
             child: Center(
                 child: Text(
-              "Errand Details",
+              title,
               style: TextStyle(fontSize: 30),
             ) // Your desired title
                 ),
@@ -192,9 +240,7 @@ class _MapScreenState extends State<MapScreen> {
                 padding: EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                      icon: Icon(Icons.description),
-                      labelText:
-                          "Here should be errand description, location, and payment"),
+                      icon: Icon(Icons.description), labelText: desc),
                 ),
               ),
             ],
@@ -202,9 +248,16 @@ class _MapScreenState extends State<MapScreen> {
           ListTile(
             leading: Icon(Icons.check),
             title: Text('Take Errand'),
+            onTap: () =>
+                _takeErrand(id, "Girvinn Fernandez", markerId), //change later
             //onTap Save errand to the database, otherwise it will not save
           ),
         ]));
+  }
+
+  void _takeErrand(String id, String username, MarkerId markerid) {
+    ErrandProvider().takeErrand(username, id);
+    _remove(markerid);
   }
 
   void _remove(MarkerId markerId) {

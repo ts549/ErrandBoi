@@ -4,7 +4,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'errand_provider.dart';
+import 'main.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +29,7 @@ class Errand {
       {required this.title,
       required this.description,
       required this.requestor,
+      required this.errandId,
       required this.locLat,
       required this.locLng,
       required this.duration,
@@ -33,23 +38,31 @@ class Errand {
   String? title = "";
   String? description = "";
   String? requestor = "";
+  String? errandId = "";
   double? locLat = 0.0;
   double? locLng = 0.0;
   int? duration = 0;
-  int? reward = 0;
+  double? reward = 0;
 
   factory Errand.fromJson(Map<String, dynamic> json) => Errand(
       title: json["title"],
-      description: json["descr"],
+      description: json["desc"],
       requestor: json["requestor"],
-      locLat: json["locLat"],
-      locLng: json["locLng"],
+      locLat: json["location"]["coordinates"][1],
+      locLng: json["location"]["coordinates"][0],
+      errandId: json["errandId"],
       duration: json["duration"],
       reward: json["reward"]);
+  @override
+  String toString() {
+    return '{errandId: $errandId}';
+  }
 }
 
 class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+  //const Home({Key? key}) : super(key: key);
+  const Home({super.key, this.pos});
+  final LatLng? pos;
 
   @override
   Widget build(BuildContext context) {
@@ -58,16 +71,20 @@ class Home extends StatelessWidget {
         automaticallyImplyLeading: false,
         title: Text("Create errand"),
       ),
-      body: const TextFormFieldDemo(),
+      body: TextFormFieldDemo(
+        pos: pos,
+      ),
     );
   }
 }
 
 class TextFormFieldDemo extends StatefulWidget {
-  const TextFormFieldDemo({Key? key}) : super(key: key);
+  //TextFormFieldDemo({Key? key, @required pos}) : super(key: key);
+  TextFormFieldDemo({this.pos});
+  LatLng? pos;
 
   @override
-  TextFormFieldDemoState createState() => TextFormFieldDemoState();
+  TextFormFieldDemoState createState() => TextFormFieldDemoState(pos);
 }
 
 // class PersonData {
@@ -159,6 +176,8 @@ class TextFormFieldDemo extends StatefulWidget {
 class TextFormFieldDemoState extends State<TextFormFieldDemo>
     with RestorationMixin {
 //  PersonData person = PersonData();
+  final LatLng? pos;
+  TextFormFieldDemoState(this.pos);
   Errand errand = Errand.fromForm();
 
   late FocusNode _phoneNumber, _email, _lifeStory, _password, _retypePassword;
@@ -215,10 +234,12 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo>
       );*/
     } else {
       form.save();
-      ErrandProvider().addErrand(errand.title, errand.description, "lucy", 12.2,
-          100.3, 10, errand.reward);
+      ErrandProvider().addErrand(errand.title, errand.description, "lucy",
+          widget.pos!.latitude, widget.pos!.longitude, 10, errand.reward);
       //  showInSnackBar(GalleryLocalizations.of(context)!
       //      .demoTextFieldNameHasPhoneNumber(person.name!, person.phoneNumber!));
+      Navigator.of(context)
+          .push(MaterialPageRoute(builder: (_) => MapScreen()));
     }
   }
 
@@ -325,7 +346,7 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo>
                         if (value == null) {
                           print("needs reward value");
                         } else {
-                          errand.reward = int.parse(value);
+                          errand.reward = double.parse(value);
                         }
                       },
                       maxLines: 1,
