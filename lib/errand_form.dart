@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'main.dart';
 import 'errand_map.dart';
+import 'errand_provider.dart';
 
 class ErrandForm extends StatelessWidget {
   // const MyApp({Key? key}) : super(key: key);
@@ -16,6 +17,34 @@ class ErrandForm extends StatelessWidget {
       home: Home(),
     );
   }
+}
+
+class Errand {
+  Errand(
+      {required this.title,
+      required this.description,
+      required this.requestor,
+      required this.locLat,
+      required this.locLng,
+      required this.duration,
+      required this.reward});
+  Errand.fromForm();
+  String? title = "";
+  String? description = "";
+  String? requestor = "";
+  double? locLat = 0.0;
+  double? locLng = 0.0;
+  int? duration = 0;
+  int? reward = 0;
+
+  factory Errand.fromJson(Map<String, dynamic> json) => Errand(
+      title: json["title"],
+      description: json["descr"],
+      requestor: json["requestor"],
+      locLat: json["locLat"],
+      locLng: json["locLng"],
+      duration: json["duration"],
+      reward: json["reward"]);
 }
 
 class Home extends StatelessWidget {
@@ -129,6 +158,7 @@ class TextFormFieldDemo extends StatefulWidget {
 class TextFormFieldDemoState extends State<TextFormFieldDemo>
     with RestorationMixin {
 //  PersonData person = PersonData();
+  Errand errand = Errand.fromForm();
 
   late FocusNode _phoneNumber, _email, _lifeStory, _password, _retypePassword;
 
@@ -184,6 +214,8 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo>
       );*/
     } else {
       form.save();
+      ErrandProvider().addErrand(errand.title, errand.description, "lucy", 12.2,
+          100.3, 10, errand.reward);
       //  showInSnackBar(GalleryLocalizations.of(context)!
       //      .demoTextFieldNameHasPhoneNumber(person.name!, person.phoneNumber!));
     }
@@ -203,6 +235,7 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo>
 
   final _dateC = TextEditingController();
   final _timeC = TextEditingController();
+  var _title = TextEditingController();
 
   ///Date
   DateTime selected = DateTime.now();
@@ -259,6 +292,7 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo>
                 SizedBox(
                     width: 200,
                     child: TextFormField(
+                      controller: _title,
                       restorationId: 'name_field',
                       textInputAction: TextInputAction.next,
                       textCapitalization: TextCapitalization.words,
@@ -269,22 +303,30 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo>
                       ),
                       onSaved: (value) {
                         //person.name = value;
-                        _phoneNumber.requestFocus();
+                        errand.title = value;
+                        //_phoneNumber.requestFocus();
                       },
-                      validator: _validateName,
+                      //validator: _validateName,
                     )),
                 SizedBox(
-                    width: 100,
+                    width: 150,
                     child: TextFormField(
-                      restorationId: 'salary_field',
+                      restorationId: 'reward_field',
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         icon: const Icon(Icons.attach_money),
-                        labelText: "Price",
+                        labelText: "Reward",
                         suffixText: "USD",
                       ),
+                      onSaved: (value) {
+                        if (value == null) {
+                          print("needs reward value");
+                        } else {
+                          errand.reward = int.parse(value);
+                        }
+                      },
                       maxLines: 1,
                     ))
               ]),
@@ -296,6 +338,9 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo>
                     border: const OutlineInputBorder(),
                     hintText: "Tell us more about your errand.",
                     labelText: "Errand description"),
+                onSaved: (value) {
+                  errand.description = value;
+                },
                 maxLines: 3,
               ),
               sizedBoxSpace,
