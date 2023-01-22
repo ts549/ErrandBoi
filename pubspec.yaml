@@ -20,6 +20,7 @@ dependencies:
   provider: ^6.0.0
   google_maps_flutter_web: ^0.4.0+5
   http: ^0.13.5
+  expandable: ^5.0.1
 
 dev_dependencies:
   flutter_test:
