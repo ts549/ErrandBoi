@@ -310,7 +310,7 @@ class TextFormFieldDemoState extends State<TextFormFieldDemo>
                       //validator: _validateName,
                     )),
                 SizedBox(
-                    width: 100,
+                    width: 150,
                     child: TextFormField(
                       restorationId: 'reward_field',
                       textInputAction: TextInputAction.next,
