@@ -89,16 +89,158 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext build) {
     return Scaffold(
       body: GoogleMap(
-          myLocationButtonEnabled: false,
-          initialCameraPosition: _initialCameraPosition,
-          onMapCreated: (GoogleMapController controller) {
-            _controller.complete(controller);
-          }),
+        myLocationButtonEnabled: false,
+        initialCameraPosition: _initialCameraPosition,
+        onMapCreated: (GoogleMapController controller) {
+          _controller.complete(controller);
+        },
+        onLongPress: _add,
+        markers: Set<Marker>.of(markers.values),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _getCurrentPosition,
         child: Icon(Icons.center_focus_strong),
       ),
     );
+  }
+
+  void _add(LatLng pos) {
+    final int markerCount = markers.length;
+
+    if (markerCount == 12) {
+      return;
+    }
+
+    final String markerIdVal = 'marker_id_$_markerIdCounter';
+    _markerIdCounter++;
+    final MarkerId markerId = MarkerId(markerIdVal);
+
+    final Marker marker = Marker(
+      markerId: markerId,
+      position: pos,
+      infoWindow: InfoWindow(title: markerIdVal, snippet: '*'),
+      onTap: () => {
+        _onMarkerTapped(markerId),
+        showModalBottomSheet(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            context: context,
+            builder: (builder) {
+              return Container(
+                child: _buildBottonNavigationMethod(),
+              );
+            })
+      },
+      onDragEnd: (LatLng position) => _onMarkerDragEnd(markerId, position),
+      onDrag: (LatLng position) => _onMarkerDrag(markerId, position),
+    );
+
+    setState(() {
+      markers[markerId] = marker;
+    });
+  }
+
+  SizedBox _buildBottonNavigationMethod() {
+    return SizedBox(
+        height: 300,
+        child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+          Container(
+            color: Colors.lightBlue,
+            height: 40.0,
+            child: Center(
+                child: Text(
+              "Errand Details",
+              style: TextStyle(fontSize: 30),
+            ) // Your desired title
+                ),
+          ),
+          Form(
+              child: Column(
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      icon: Icon(Icons.description),
+                      labelText:
+                          "Here should be errand description, location, and payment"),
+                ),
+              ),
+            ],
+          )),
+          ListTile(
+            leading: Icon(Icons.check),
+            title: Text('Take Errand'),
+            //onTap Save errand to the database, otherwise it will not save
+          ),
+        ]));
+  }
+
+  void _remove(MarkerId markerId) {
+    setState(() {
+      if (markers.containsKey(markerId)) {
+        markers.remove(markerId);
+      }
+    });
+  }
+
+  void _onMarkerTapped(MarkerId markerId) {
+    final Marker? tappedMarker = markers[markerId];
+    if (tappedMarker != null) {
+      setState(() {
+        final MarkerId? previousMarkerId = selectedMarker;
+        if (previousMarkerId != null && markers.containsKey(previousMarkerId)) {
+          final Marker resetOld = markers[previousMarkerId]!
+              .copyWith(iconParam: BitmapDescriptor.defaultMarker);
+          markers[previousMarkerId] = resetOld;
+        }
+        selectedMarker = markerId;
+        final Marker newMarker = tappedMarker.copyWith(
+          iconParam: BitmapDescriptor.defaultMarkerWithHue(
+            BitmapDescriptor.hueGreen,
+          ),
+        );
+        markers[markerId] = newMarker;
+
+        markerPosition = null;
+      });
+    }
+  }
+
+  Future<void> _onMarkerDrag(MarkerId markerId, LatLng newPosition) async {
+    setState(() {
+      markerPosition = newPosition;
+    });
+  }
+
+  Future<void> _onMarkerDragEnd(MarkerId markerId, LatLng newPosition) async {
+    final Marker? tappedMarker = markers[markerId];
+    if (tappedMarker != null) {
+      setState(() {
+        markerPosition = null;
+      });
+      await showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () => Navigator.of(context).pop(),
+                  )
+                ],
+                content: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 66),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text('Old position: ${tappedMarker.position}'),
+                        Text('New position: $newPosition'),
+                      ],
+                    )));
+          });
+    }
   }
 
   Future<void> _goCurrent(Position position) async {
