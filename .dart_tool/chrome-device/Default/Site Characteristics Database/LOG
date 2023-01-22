@@ -1,2 +1,4 @@
-2023/01/21-01:44:09.572 bb03 Creating DB /private/var/folders/6y/96khj13j2s70dm3wc1s69dnm0000gn/T/flutter_tools.P7aCk9/flutter_tools_chrome_device.hbrqH0/Default/Site Characteristics Database since it was missing.
-2023/01/21-01:44:09.735 bb03 Reusing MANIFEST /private/var/folders/6y/96khj13j2s70dm3wc1s69dnm0000gn/T/flutter_tools.P7aCk9/flutter_tools_chrome_device.hbrqH0/Default/Site Characteristics Database/MANIFEST-000001
+2023/01/21-20:39:29.268 5928 Reusing MANIFEST C:\Users\taosu\AppData\Local\Temp\flutter_tools.1294ed1e\flutter_tools_chrome_device.b905ec67\Default\Site Characteristics Database/MANIFEST-000001
+2023/01/21-20:39:29.268 5928 Recovering log #6
+2023/01/21-20:39:29.268 5928 Reusing old log C:\Users\taosu\AppData\Local\Temp\flutter_tools.1294ed1e\flutter_tools_chrome_device.b905ec67\Default\Site Characteristics Database/000006.log 
+2023/01/21-20:39:29.269 5928 Delete type=0 #3

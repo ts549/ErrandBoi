@@ -27,8 +27,8 @@ class RouteGenerator {
     switch (settings.name) {
       case '/map':
         return MaterialPageRoute(builder: (_) => Map());
-      case '/request_errand':
-        return MaterialPageRoute(builder: (_) => RequestErrand());
+      case '/errand_form':
+        return MaterialPageRoute(builder: (_) => ErrandForm());
     }
 
     return MaterialPageRoute(builder: (_) => Placeholder());
