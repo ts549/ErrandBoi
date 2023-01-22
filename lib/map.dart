@@ -54,16 +54,23 @@ class Map extends StatelessWidget {
             theme: ThemeData(
               primaryColor: Colors.white,
             ),
-            home: MapScreen(),
+            home: Stack(
+              children: [
+                MapScreen(),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => ErrandForm()));
+                    },
+                    icon: Icon(Icons.add_location),
+                    iconSize: 50,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        // IconButton(
-        //   onPressed: () {
-        //     Navigator.of(context).push(MaterialPageRoute(builder: (_) => RequestErrand()));
-        //   },
-        //   icon: Icon(Icons.add_location),
-        //   iconSize: 50,
-        // ),
       )
     )
    );
