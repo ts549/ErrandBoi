@@ -7,6 +7,9 @@ import 'package:geocoding/geocoding.dart';
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MyApp());
@@ -71,8 +74,15 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   String? _currentAddress;
   Position? _currentPosition;
+  late Future<Album> futureAlbum;
   static const LatLng center = LatLng(-33.86711, 151.1947171);
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{}; //list of markers
+
+  @override
+  void initState() {
+    super.initState();
+    futureAlbum = fetchAlbum();
+  }
 
   static const _initialCameraPosition = CameraPosition(
     target: LatLng(37.773972, -122.431297),
@@ -106,7 +116,7 @@ class _MapScreenState extends State<MapScreen> {
 
   void _add(LatLng pos) {
     final int markerCount = markers.length;
-
+    print(pos);
     if (markerCount == 12) {
       return;
     }
