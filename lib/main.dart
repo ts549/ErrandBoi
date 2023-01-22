@@ -14,26 +14,33 @@ import 'package:http/http.dart' as http;
 import 'errand_form.dart';
 import 'errand_provider.dart';
 
+import 'errand_map.dart';
+import 'errand_form.dart';
+
 void main() {
+  // runApp(MyApp());
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'ErrandBoi',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primaryColor: Colors.white,
-        ),
-        home: MapScreen(),
-      ),
-    );
+    return MaterialApp(home: ErrandMap());
+  }
+}
+
+class RouteGenerator {
+  static Route<dynamic> generateRoute(RouteSettings settings) {
+
+    switch (settings.name) {
+      case '/map':
+        return MaterialPageRoute(builder: (_) => ErrandMap());
+      case '/errand_form':
+        return MaterialPageRoute(builder: (_) => ErrandForm());
+    }
+
+    return MaterialPageRoute(builder: (_) => Placeholder());
+    
   }
 }
 

@@ -10,12 +10,8 @@ import 'package:geocoding/geocoding.dart';
 import 'errand_provider.dart';
 import 'main.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class ErrandForm extends StatelessWidget {
+  // const MyApp({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
